@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ProcessInsight — Inscription</title>
+  <style>
+    /* Même style que login.html */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1a1d2e;
+      border: 1px solid #2d3150;
+      border-radius: 12px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    h2 { color: #7eb8f7; margin-bottom: 0.3rem; font-size: 1.6rem; }
+    p.subtitle { color: #6b7280; font-size: 0.9rem; margin-bottom: 1.8rem; }
+    label { display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 0.4rem; }
+    input {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      background: #0f1117;
+      border: 1px solid #2d3150;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.95rem;
+      margin-bottom: 1.2rem;
+      transition: border-color 0.2s;
+    }
+    input:focus { outline: none; border-color: #7eb8f7; }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: #3b6fd4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #2d5ab8; }
+    .alert { padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem; }
+    .alert-danger  { background: #3b1a1a; color: #f87171; border: 1px solid #7f1d1d; }
+    .alert-success { background: #1a3b2a; color: #6ee7b7; border: 1px solid #065f46; }
+    .footer-link { text-align: center; margin-top: 1.2rem; font-size: 0.88rem; color: #6b7280; }
+    .footer-link a { color: #7eb8f7; text-decoration: none; }
+    .logo { text-align: center; margin-bottom: 1.5rem; }
+    .logo span { font-size: 1.1rem; letter-spacing: 2px; color: #7eb8f7; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><span>⚗ PROCESSINSIGHT</span></div>
+    <h2>Créer un compte</h2>
+    <p class="subtitle">Rejoignez la plateforme de simulation</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <label for="username">Nom d'utilisateur</label>
+      <input type="text" id="username" name="username" placeholder="ex: saad_ea" required>
+
+      <label for="email">Adresse email</label>
+      <input type="email" id="email" name="email" placeholder="vous@exemple.com" required>
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" placeholder="minimum 6 caractères" required>
+
+      <label for="confirm_password">Confirmer le mot de passe</label>
+      <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+
+      <button type="submit">Créer mon compte</button>
+    </form>
+
+    <div class="footer-link">
+      Déjà un compte ? <a href="{{ url_for('auth.login') }}">Se connecter</a>
+    </div>
+  </div>
+</body>
+</html>

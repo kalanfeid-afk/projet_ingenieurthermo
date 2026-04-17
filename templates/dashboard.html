@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — ProcessInsight{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dash-header { margin-bottom: 2rem; }
+  .dash-header h1 { font-size: 1.8rem; font-weight: 700; }
+  .dash-header p  { color: var(--text-secondary); margin-top: 0.3rem; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem 1.5rem;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .stat-value { font-size: 2rem; font-weight: 700; font-family: var(--font-mono); }
+  .stat-value.blue   { color: var(--accent-blue); }
+  .stat-value.green  { color: var(--accent-green); }
+  .stat-value.cyan   { color: var(--accent-cyan); }
+  .stat-value.orange { color: var(--accent-orange); }
+  .quick-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+  .action-card {
+    flex: 1; min-width: 200px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 0.8rem;
+    text-decoration: none; color: var(--text-primary);
+    transition: all 0.2s;
+  }
+  .action-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+  .action-card .icon { font-size: 1.8rem; }
+  .action-card h3 { font-size: 1rem; }
+  .action-card p  { font-size: 0.83rem; color: var(--text-secondary); }
+  .history-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .history-table th {
+    text-align: left; padding: 0.7rem 1rem;
+    color: var(--text-muted); font-size: 0.75rem;
+    letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-table td { padding: 0.8rem 1rem; border-bottom: 1px solid rgba(30,45,69,0.5); }
+  .history-table tr:hover td { background: rgba(77,159,255,0.03); }
+  .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dash-header">
+  <h1>Bonjour, {{ username }} 👋</h1>
+  <p>Tableau de bord — Vos simulations thermodynamiques</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Simulations</div>
+    <div class="stat-value blue" id="stat-sims">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Modèle favori</div>
+    <div class="stat-value cyan" id="stat-model" style="font-size:1rem;margin-top:0.6rem">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Composants testés</div>
+    <div class="stat-value green" id="stat-comp">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Dernière activité</div>
+    <div class="stat-value orange" id="stat-last" style="font-size:0.9rem;margin-top:0.6rem">—</div>
+  </div>
+</div>
+
+<div class="quick-actions">
+  <a href="{{ url_for('main.simulation') }}" class="action-card">
+    <div class="icon">⚗️</div>
+    <h3>Nouvelle Simulation</h3>
+    <p>Lancer une simulation de distillation</p>
+  </a>
+  <a href="#history" class="action-card">
+    <div class="icon">📋</div>
+    <h3>Historique</h3>
+    <p>Consulter vos simulations passées</p>
+  </a>
+  <a href="{{ url_for('main.simulation') }}?mode=compare" class="action-card">
+    <div class="icon">🔬</div>
+    <h3>Comparer les Modèles</h3>
+    <p>Comparer Wilson vs NRTL vs PR</p>
+  </a>
+</div>
+
+<div class="card" id="history">
+  <div class="card-title">Historique des Simulations</div>
+  <div id="history-body">
+    <div class="empty-state">
+      <div class="icon">🧪</div>
+      <p>Aucune simulation encore. <a href="{{ url_for('main.simulation') }}" style="color:var(--accent-blue)">Lancez votre première !</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Chargement de l'historique via API
+  fetch('/api/history')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.sessions || data.sessions.length === 0) return;
+
+      document.getElementById('stat-sims').textContent  = data.sessions.length;
+      document.getElementById('stat-comp').textContent  =
+        new Set(data.sessions.flatMap(s => [s.component_1, s.component_2])).size;
+      document.getElementById('stat-model').textContent =
+        data.sessions[0]?.model_used || '—';
+
+      const last = new Date(data.sessions[0]?.created_at);
+      document.getElementById('stat-last').textContent =
+        last.toLocaleDateString('fr-FR');
+
+      const rows = data.sessions.map(s => `
+        <tr>
+          <td><span class="badge badge-cyan">${s.component_1}</span> / <span class="badge badge-blue">${s.component_2}</span></td>
+          <td style="font-family:var(--font-mono)">${s.temperature} K</td>
+          <td style="font-family:var(--font-mono)">${(s.pressure/1000).toFixed(0)} kPa</td>
+          <td><span class="badge badge-green">${s.model_used}</span></td>
+          <td style="color:var(--text-secondary);font-size:0.82rem">
+            ${new Date(s.created_at).toLocaleDateString('fr-FR')}
+          </td>
+        </tr>`).join('');
+
+      document.getElementById('history-body').innerHTML = `
+        <table class="history-table">
+          <thead><tr>
+            <th>Composants</th><th>Température</th>
+            <th>Pression</th><th>Modèle</th><th>Date</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    })
+    .catch(() => {});
+</script>
+{% endblock %}

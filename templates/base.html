@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ProcessInsight{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-primary:    #080c14;
+      --bg-secondary:  #0f1524;
+      --bg-card:       #131929;
+      --border:        #1e2d45;
+      --accent-blue:   #4d9fff;
+      --accent-cyan:   #00d4ff;
+      --accent-green:  #00e5a0;
+      --accent-orange: #ff8c42;
+      --text-primary:  #e8f0fe;
+      --text-secondary:#7a8fb0;
+      --text-muted:    #3d5270;
+      --danger:        #ff4d6d;
+      --warning:       #ffd166;
+      --font-main:     'Space Grotesk', sans-serif;
+      --font-mono:     'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-logo span { color: var(--text-secondary); font-weight: 300; }
+    .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { background: var(--border); color: var(--text-primary); }
+    .nav-links a.active { background: rgba(77,159,255,0.15); color: var(--accent-blue); }
+    .btn-nav {
+      background: var(--accent-blue);
+      color: #080c14 !important;
+      font-weight: 600 !important;
+      padding: 0.4rem 1rem !important;
+    }
+    .btn-nav:hover { background: var(--accent-cyan) !important; }
+
+    /* ── MAIN ── */
+    main { flex: 1; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    /* ── ALERTS ── */
+    .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem; }
+    .alert-danger  { background: rgba(255,77,109,0.1); color: #ff4d6d; border: 1px solid rgba(255,77,109,0.3); }
+    .alert-success { background: rgba(0,229,160,0.1); color: #00e5a0; border: 1px solid rgba(0,229,160,0.3); }
+    .alert-warning { background: rgba(255,209,102,0.1); color: #ffd166; border: 1px solid rgba(255,209,102,0.3); }
+    .alert-info    { background: rgba(0,212,255,0.1); color: #00d4ff; border: 1px solid rgba(0,212,255,0.3); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.4rem; border-radius: 8px; border: none;
+      font-family: var(--font-main); font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-decoration: none;
+    }
+    .btn-primary { background: var(--accent-blue); color: #080c14; }
+    .btn-primary:hover { background: var(--accent-cyan); transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .btn-outline:hover { background: rgba(77,159,255,0.1); }
+    .btn-danger { background: var(--danger); color: white; }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-blue   { background: rgba(77,159,255,0.15); color: var(--accent-blue); }
+    .badge-green  { background: rgba(0,229,160,0.15);  color: var(--accent-green); }
+    .badge-orange { background: rgba(255,140,66,0.15); color: var(--accent-orange); }
+    .badge-cyan   { background: rgba(0,212,255,0.15);  color: var(--accent-cyan); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">⚗ PROCESS<span>INSIGHT</span></div>
+    <div class="nav-links">
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('main.simulation') }}">Simulation</a>
+        {% if session.get('is_admin') %}
+          <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="btn-nav btn">Déconnexion</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Connexion</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-nav btn">S'inscrire</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

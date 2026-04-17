@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}ProcessInsight — Accueil{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 80vh; text-align: center; gap: 1.5rem;
+    position: relative;
+  }
+  .hero-tag {
+    font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent-cyan); border: 1px solid rgba(0,212,255,0.3);
+    padding: 0.3rem 1rem; border-radius: 20px;
+    background: rgba(0,212,255,0.05);
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700; line-height: 1.1;
+    background: linear-gradient(135deg, #e8f0fe 0%, #4d9fff 50%, #00d4ff 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    max-width: 560px; color: var(--text-secondary);
+    font-size: 1.05rem; line-height: 1.7;
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem; margin-top: 4rem;
+  }
+  .feature-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { border-color: var(--accent-blue); transform: translateY(-3px); }
+  .feature-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .feature-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+  .feature-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+  .grid-bg {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(77,159,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,159,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grid-bg"></div>
+<div class="hero">
+  <div class="hero-tag">Simulation Thermodynamique</div>
+  <h1>Comprendre les<br>Procédés de Séparation</h1>
+  <p>Simulez et visualisez le comportement moléculaire dans la distillation grâce aux modèles thermodynamiques Van der Waals, Peng-Robinson, Wilson et NRTL.</p>
+  <div class="hero-btns">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Commencer gratuitement</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Se connecter</a>
+  </div>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🧪</div>
+    <h3>4 Modèles Thermodynamiques</h3>
+    <p>Van der Waals, Peng-Robinson, Wilson et NRTL — sélectionnés automatiquement selon vos conditions.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3>Visualisation Interactive</h3>
+    <p>Profil de température, diagramme x-y, trajectoire de la molécule dans la colonne.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Calculs en Temps Réel</h3>
+    <p>Résultats instantanés : fugacités, coefficients d'activité, fractions vapeur/liquide.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🎓</div>
+    <h3>Outil Pédagogique</h3>
+    <p>Conçu pour les étudiants, enseignants et ingénieurs en génie des procédés.</p>
+  </div>
+</div>
+{% endblock %}
